@@ -41,7 +41,7 @@ object MediaApi extends Controller with ArgoHelpers {
 
   val commonTransformers = new Transformers(Config.services)
 
-  import Config.{rootUri, cropperUri, loaderUri, metadataUri, kahunaUri, loginUriTemplate}
+  import Config.{rootUri, cropperUri, loaderUri, metadataUri, authUri, loginUriTemplate}
 
   val Authenticated = auth.Authenticated(keyStore, loginUriTemplate, Config.kahunaUri)
 
@@ -70,7 +70,7 @@ object MediaApi extends Controller with ArgoHelpers {
       Link("cropper",         cropperUri),
       Link("loader",          loaderUri),
       Link("edits",           metadataUri),
-      Link("session",         s"$kahunaUri/session"),
+      Link("session",         s"$authUri/session"),
       Link("witness-report",  s"https://n0ticeapis.com/2/report/{id}")
     )
     respond(indexData, indexLinks)

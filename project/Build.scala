@@ -35,6 +35,9 @@ object Build extends Build {
     .libraryDependencies(playWsDeps)
     .settings(includeAssetsSettings: _*)
 
+  val auth = playProject("auth")
+    .libraryDependencies(playWsDeps)
+
   val mediaApi = playProject("media-api")
     .libraryDependencies(elasticsearchDeps ++ awsDeps ++
       scalazDeps ++ parsingDeps ++ uriTemplateDeps)

@@ -103,6 +103,7 @@ service.factory('editsService',
     function update(resource, data, originalImage) {
         runWatcher(resource, 'update-start');
 
+        // FIXME: one at a time, latest wins
         return resource.put({ data }).then(edit =>
             getSynced(originalImage, newImage => matches(edit, newImage))).
             then(({ edit, image }) => {
