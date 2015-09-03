@@ -2,10 +2,13 @@ package lib
 
 import java.util.concurrent.atomic.{AtomicReference, AtomicLong}
 
+import play.api.Play.current
+
 import com.amazonaws.services.cloudwatch.model.Dimension
 import org.elasticsearch.action.deletebyquery.DeleteByQueryResponse
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
+import play.api.libs.ws.WS
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -107,7 +110,15 @@ object MessageConsumer {
     withImageId(exports)(id => ElasticSearch.deleteImageExports(id))
 
   def updateImageUserMetadata(metadata: JsValue): Future[UpdateResponse] =
-    withImageId(metadata)(id => ElasticSearch.applyImageMetadataOverride(id, metadata \ "data"))
+    withImageId(metadata)(id =>  {
+      ElasticSearch.applyImageMetadataOverride(id, metadata \ "data").flatMap(u => {
+        WS.url("https://media.local.dev-gutools.co.uk/send-update").get().map { a =>
+          println("<<>>><><><>>><><> blahlavlkalskja")
+          println(a.body)
+          u
+        }
+      })
+    })
 
   def deleteImage(image: JsValue): Future[EsResponse] =
     withImageId(image) { id =>
