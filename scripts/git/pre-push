@@ -1,0 +1,20 @@
+#!/bin/bash
+
+RUN_TESTS="npm run test" # Command that runs your tests
+
+# Check if we actually have commits to push
+commits=`git log @{u}..`
+if [ -z "$commits" ]; then
+    exit 0
+fi
+
+current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
+
+$RUN_TESTS
+RESULT=$?
+if [ $RESULT -ne 0 ]; then
+    echo "failed $RUN_TESTS"
+    exit 1
+fi
+
+exit 0
