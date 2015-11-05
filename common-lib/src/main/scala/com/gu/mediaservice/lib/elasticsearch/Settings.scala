@@ -49,3 +49,46 @@ object IndexSettings {
   )
 
 }
+
+object TestThese {
+  val tests = """
+    GET 'Charles James Mark Armitage cricket'
+    [{
+      "description": "Another enthralling cricket match where Mark Armitage's bat keeps failing",
+      "title": "Charles James",
+      "shouldMatch": true,
+      "doesMatch": true
+    },
+    {
+      "description": "Another enthralling cricket match where Mark Armitage's bat keeps failing",
+      "title": "Charles James's",
+      "match": false
+    }]
+
+    GET 'snoop'
+    [{
+      "description": "Snoop Dogg, 'If the ride is more fly, then you must buy.'",
+      "title": "Charles James's",
+      "shouldMatch": true,
+      "doesMatch": true
+    }]
+
+    GET 'snooping'
+    [{
+      "description": "Snoop Dogg, 'If the ride is more fly, then you must buy.'",
+      "title": "Charles James's",
+      "shouldMatch": true,
+      "doesMatch": true
+    }]
+
+    GET 'ai weiwei tate gallery'
+    [{
+      "description": "Ai Weiwei's work was scattered amongst the tate galleries.'",
+      "title": "John Bombkin",
+      "match": false,
+      "shouldMatch": true,
+      "doesMatch": false,
+      "why": "gallery vs galleries"
+    }]
+    """
+}
