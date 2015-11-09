@@ -10,6 +10,8 @@ import com.gu.mediaservice.lib.config.{Properties, CommonPlayAppConfig, CommonPl
 
 object Config extends CommonPlayAppConfig with CommonPlayAppProperties {
 
+  val appName = "media-api"
+
   val properties = Properties.fromPath("/etc/gu/media-api.properties")
 
   val awsCredentials: AWSCredentials =
@@ -48,6 +50,7 @@ object Config extends CommonPlayAppConfig with CommonPlayAppProperties {
   lazy val metadataUri: String = services.metadataBaseUri
   lazy val imgopsUri: String = services.imgopsBaseUri
   lazy val authUri: String = services.authBaseUri
+  lazy val usageUri: String = services.usageBaseUri
   lazy val loginUriTemplate: String = services.loginUriTemplate
 
   private lazy val corsAllowedOrigins = properties.getOrElse("cors.allowed.origins", "").split(",").toList

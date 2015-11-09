@@ -5,11 +5,13 @@ import template from './image.html!text';
 
 import '../image/service';
 import '../components/gr-add-label/gr-add-label';
+import '../components/gr-image-persist-status/gr-image-persist-status';
 
 export var image = angular.module('kahuna.preview.image', [
     'gr.image.service',
     'analytics.track',
-    'gr.addLabel'
+    'gr.addLabel',
+    'gr.imagePersistStatus'
 ]);
 
 image.controller('uiPreviewImageCtrl', [
@@ -51,5 +53,14 @@ image.directive('uiPreviewImage', function() {
         controller: 'uiPreviewImageCtrl',
         controllerAs: 'ctrl',
         bindToController: true
+    };
+});
+
+image.directive('grStopPropagation', function() {
+    return {
+        restrict: 'A',
+        link: function(scope, element, attrs) {
+            element.on(attrs.grStopPropagation, e => e.stopPropagation());
+        }
     };
 });

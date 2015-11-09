@@ -3,8 +3,8 @@ package com.gu.mediaservice.lib.aws
 import com.amazonaws.auth.AWSCredentials
 import com.amazonaws.regions.Region
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
-import com.amazonaws.services.dynamodbv2.document.{DynamoDB => AwsDynamoDB, UpdateItemOutcome, Table, Item}
-import com.amazonaws.services.dynamodbv2.document.spec.{GetItemSpec, UpdateItemSpec}
+import com.amazonaws.services.dynamodbv2.document.{DynamoDB => AwsDynamoDB, DeleteItemOutcome, UpdateItemOutcome, Table, Item}
+import com.amazonaws.services.dynamodbv2.document.spec.{DeleteItemSpec, GetItemSpec, UpdateItemSpec}
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap
 import com.amazonaws.services.dynamodbv2.model.ReturnValue
 import play.api.libs.json._
@@ -24,7 +24,6 @@ class DynamoDB(credentials: AWSCredentials, region: Region, tableName: String) {
   lazy val table: Table = dynamo.getTable(tableName)
 
   val IdKey = "id"
-
 
   def get(id: String)
          (implicit ex: ExecutionContext): Future[JsObject] = Future {
@@ -57,6 +56,8 @@ class DynamoDB(credentials: AWSCredentials, region: Region, tableName: String) {
       s"REMOVE $key"
     )
 
+  def deleteItem(id: String) =
+    table.deleteItem(new DeleteItemSpec().withPrimaryKey(IdKey, id))
 
   def booleanGet(id: String, key: String)
                 (implicit ex: ExecutionContext): Future[Option[Boolean]] =
@@ -143,6 +144,7 @@ class DynamoDB(credentials: AWSCredentials, region: Region, tableName: String) {
 
   def update(id: String, expression: String, valueMap: Option[ValueMap] = None)
             (implicit ex: ExecutionContext): Future[JsObject] = Future {
+
     val baseUpdateSpec = new UpdateItemSpec().
       withPrimaryKey(IdKey, id).
       withUpdateExpression(expression).
@@ -161,6 +163,8 @@ class DynamoDB(credentials: AWSCredentials, region: Region, tableName: String) {
   def asJsObject(outcome: UpdateItemOutcome): JsObject =
     asJsObject(outcome.getItem)
 
+  def asJsObject(outcome: DeleteItemOutcome): JsObject =
+    asJsObject(outcome.getItem)
 
   // FIXME: Dynamo accepts `null`, but not `""`. This is a well documented issue
   // around the community. This guard keeps the introduction of `null` fairly

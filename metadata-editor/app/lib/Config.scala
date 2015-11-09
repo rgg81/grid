@@ -1,11 +1,13 @@
 package lib
 
 import com.amazonaws.regions.{Regions, Region}
-import com.gu.mediaservice.lib.config.{Properties, CommonPlayAppProperties}
+import com.gu.mediaservice.lib.config.{Properties, CommonPlayAppConfig, CommonPlayAppProperties}
 import com.amazonaws.auth.{BasicAWSCredentials, AWSCredentials}
 
 
-object Config extends CommonPlayAppProperties {
+object Config extends CommonPlayAppProperties with CommonPlayAppConfig {
+
+  val appName = "metadata-editor"
 
   val properties = Properties.fromPath("/etc/gu/metadata-editor.properties")
 
@@ -19,6 +21,7 @@ object Config extends CommonPlayAppProperties {
   val editsTable = properties("dynamo.table.edits")
 
   val topicArn = properties("sns.topic.arn")
+  val queueUrl = properties("indexed.images.sqs.queue.url")
 
   val rootUri = services.metadataBaseUri
   val kahunaUri = services.kahunaBaseUri

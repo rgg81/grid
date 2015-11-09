@@ -3,6 +3,7 @@ package lib
 import lib.usagerights.CostCalculator
 
 import java.net.URI
+import scala.collection.mutable.ListBuffer
 import scala.util.{Try, Failure}
 import org.joda.time.{DateTime, Duration}
 
@@ -12,23 +13,58 @@ import play.api.libs.functional.syntax._
 
 import com.gu.mediaservice.model._
 import com.gu.mediaservice.lib.argo.model._
-import com.gu.mediaservice.api.Transformers
 
 
-object ImageResponse {
+
+object ImageResponse extends EditsResponse {
   implicit val dateTimeFormat = DateFormat
 
-  val commonTransformers = new Transformers(Config.services)
+  val metadataBaseUri = Config.services.metadataBaseUri
 
   type FileMetadataEntity = EmbeddedEntity[FileMetadata]
 
   def fileMetaDataUri(id: String) = URI.create(s"${Config.rootUri}/images/$id/fileMetadata")
 
-  // TODO: move this as a method of Image (fiddly due to dep on Config)
-  def imageIsPersisted(image: Image) = {
-    image.identifiers.contains(Config.persistenceIdentifier) ||
-      image.exports.nonEmpty ||
-      image.userMetadata.exists(_.archived)
+  def hasPersistenceIdentifier(image: Image) =
+    image.identifiers.contains(Config.persistenceIdentifier)
+
+  def hasExports(image: Image) =
+    image.exports.nonEmpty
+
+  def isArchived(image: Image) =
+    image.userMetadata.exists(_.archived)
+
+  def isPhotographerCategory[T <: UsageRights](usageRights: T) =
+    usageRights match {
+      case _:Photographer => true
+      case _ => false
+    }
+
+  def isIllustratorCategory[T <: UsageRights](usageRights: T) =
+    usageRights match {
+      case _:Illustrator => true
+      case _ => false
+    }
+
+  def imagePersistenceReasons(image: Image): List[String] = {
+    val reasons = ListBuffer[String]()
+
+    if (hasPersistenceIdentifier(image))
+      reasons += "persistence-identifier"
+
+    if (hasExports(image))
+      reasons += "exports"
+
+    if (isArchived(image))
+      reasons += "archived"
+
+    if (isPhotographerCategory(image.usageRights))
+      reasons += "photographer-category"
+
+    if (isIllustratorCategory(image.usageRights))
+      reasons += "illustrator-category"
+
+    reasons.toList
   }
 
   def create(id: String, esSource: JsValue, withWritePermission: Boolean,
@@ -57,18 +93,21 @@ object ImageResponse {
 
     val valid = ImageExtras.isValid(source \ "metadata")
 
-    val isPersisted = imageIsPersisted(image)
+    val persistenceReasons = imagePersistenceReasons(image)
+    val isPersisted = persistenceReasons.nonEmpty
 
     val data = source.transform(addSecureSourceUrl(secureUrl))
       .flatMap(_.transform(wrapUserMetadata(id)))
       .flatMap(_.transform(addSecureThumbUrl(secureThumbUrl)))
       .flatMap(_.transform(addValidity(valid)))
       .flatMap(_.transform(addUsageCost(source)))
-      .flatMap(_.transform(addPersistedState(isPersisted))).get
+      .flatMap(_.transform(addPersistedState(isPersisted, persistenceReasons))).get
 
     val links = imageLinks(id, secureUrl, withWritePermission, valid)
 
-    val actions = imageActions(id, isPersisted, withDeletePermission)
+    val isDeletable = !persistenceReasons.contains("exports") && withDeletePermission
+
+    val actions = imageActions(id, isDeletable, withWritePermission)
 
     (data, links, actions)
   }
@@ -78,21 +117,31 @@ object ImageResponse {
     val editLink = Link("edits", s"${Config.metadataUri}/metadata/$id")
     val optimisedLink = Link("optimised", makeImgopsUri(new URI(secureUrl)))
     val imageLink = Link("ui:image",  s"${Config.kahunaUri}/images/$id")
+    val usageLink = Link("usages", s"${Config.usageUri}/usages/media/$id")
 
     val baseLinks = if (withWritePermission) {
-      List(editLink, optimisedLink, imageLink)
+      List(editLink, optimisedLink, imageLink, usageLink)
     } else {
-      List(optimisedLink, imageLink)
+      List(optimisedLink, imageLink, usageLink)
     }
 
     if (valid) (cropLink :: baseLinks) else baseLinks
   }
 
-  def imageActions(id: String, isPersisted: Boolean, withDeletePermission: Boolean) = {
-    val imageUri = URI.create(s"${Config.rootUri}/images/$id")
-    val deleteAction = Action("delete", imageUri, "DELETE")
+  def imageActions(id: String, isDeletable: Boolean, withWritePermission: Boolean) = {
 
-    if (! isPersisted && withDeletePermission) List(deleteAction) else Nil
+    val imageUri = URI.create(s"${Config.rootUri}/images/$id")
+    val reindexUri = URI.create(s"${Config.rootUri}/images/$id/reindex")
+
+    val deleteAction = Action("delete", imageUri, "DELETE")
+    val reindexAction = Action("reindex", reindexUri, "POST")
+
+    List(
+      deleteAction       -> isDeletable,
+      reindexAction      -> withWritePermission
+    )
+    .filter{ case (action, active) => active }
+    .map   { case (action, active) => action }
   }
 
   def addUsageCost(source: JsValue): Reads[JsObject] = {
@@ -104,25 +153,25 @@ object ImageResponse {
       (source \ "userMetadata" \ "usageRights").asOpt[JsObject]
     ).flatten.foldLeft(Json.obj())(_ ++ _).as[UsageRights]
 
-    val cost = CostCalculator.getCost(
-      usageRights,
-      (source \ "metadata" \ "credit").as[Option[String]],
-      (source \ "metadata" \ "source").as[Option[String]],
-      (source \ "usageRights" \ "supplier").asOpt[String]
-    )
+    val cost = CostCalculator.getCost(usageRights)
 
     __.json.update(__.read[JsObject].map(_ ++ Json.obj("cost" -> cost.toString)))
   }
 
-  def addPersistedState(isPersisted: Boolean): Reads[JsObject] =
-    __.json.update(__.read[JsObject]).map(_ ++ Json.obj("persisted" -> isPersisted))
+  def addPersistedState(isPersisted: Boolean, persistenceReasons: List[String]): Reads[JsObject] =
+    __.json.update(__.read[JsObject]).map(_ ++ Json.obj(
+      "persisted" -> Json.obj(
+        "value" -> isPersisted,
+        "reasons" -> persistenceReasons)))
 
   // FIXME: tidier way to replace a key in a JsObject?
   def wrapUserMetadata(id: String): Reads[JsObject] =
     __.read[JsObject].map { root =>
-      val userMetadata = commonTransformers.objectOrEmpty(root \ "userMetadata")
-      val wrappedUserMetadata = userMetadata.transform(commonTransformers.wrapAllMetadata(id)).get
-      root ++ Json.obj("userMetadata" -> wrappedUserMetadata)
+      val editsJson = (root \ "userMetadata").asOpt[Edits].map { edits =>
+        Json.toJson(editsEmbeddedEntity(id, edits))
+      }.getOrElse(Json.obj())
+
+      root ++ Json.obj("userMetadata" -> editsJson)
     }
 
   def addSecureSourceUrl(url: String): Reads[JsObject] =

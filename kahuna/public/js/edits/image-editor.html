@@ -69,12 +69,9 @@
                 </span>
             </div>
 
-            <ui-archiver
-                class="result-editor__archiver"
-                image="ctrl.image"
-            ></ui-archiver>
+            <gr-image-persist-status class="result-editor__archiver"
+                                     gr-image="ctrl.image"></gr-image-persist-status>
         </div>
-
         <span class="result-editor__save-status-container">
             <span class="result-editor__save-status"
                   ng:show="ctrl.saving">Saving… <span class="saving">⧖</span>
@@ -88,6 +85,35 @@
     </div>
 
     <div class="result-editor__editor">
+        <div class="result-editor__field-container image-info__wrap">
+            <span class="result-editor__field-label flex-no-shrink">
+                Usage rights
+            </span>
+
+            <div class="result-editor__usage-rights-container">
+                <div ng:hide="ctrl.showUsageRights" class="result-editor__field-value">
+                    <span>{{ctrl.usageRightsCategory || 'None'}}</span>
+                    <button class="image-info__edit" ng:click="ctrl.showUsageRights = !ctrl.showUsageRights">
+                        <gr-icon>edit</gr-icon>
+                    </button>
+                    <button
+                        class="job-editor__apply-to-all"
+                        title="Apply these usage rights to all your current uploads"
+                        type="button"
+                        ng:if="ctrl.withBatch"
+                        ng:click="ctrl.batchApplyUsageRights()"
+                        >⇔</button>
+                </div>
+
+                <gr-usage-rights-editor
+                    ng:if="ctrl.showUsageRights"
+                    class="result-editor__usage-rights"
+                    gr:usage-rights="[ctrl.usageRights]"
+                    gr:on-save="ctrl.showUsageRights = false"
+                    gr:on-cancel="ctrl.showUsageRights = false">
+                </gr-usage-rights-editor>
+            </div>
+        </div>
         <ui-required-metadata-editor
             class="result-editor__metadata-editor"
             resource="ctrl.image.data.userMetadata.data.metadata"
@@ -98,39 +124,20 @@
         ></ui-required-metadata-editor>
 
         <div class="result-editor__field-container">
-            <span class="result-editor__field-label flex-container">
+            <span class="result-editor__field-label flex-container flex-no-shrink">
                 Labels
-                <span class="flex-spacer"></span>
-                <gr-add-label image="ctrl.image" gr-small="true"></gr-add-label>
             </span>
-            <ui-labeller
-                class="result-editor__labeller"
-                image="ctrl.image"
-                with-batch="ctrl.withBatch"
-            ></ui-labeller>
-        </div>
-
-        <div class="result-editor__field-container image-info__wrap">
-            <span class="result-editor__field-label flex-no-shrink">
-                Usage rights
-            </span>
-
-            <div class="result-editor__usage-rights-container">
-                <div ng:hide="ctrl.showUsageRights">
-                    <span>{{ctrl.usageRightsCategory || 'None'}}</span>
-                    <button class="image-info__edit" ng:click="ctrl.showUsageRights = !ctrl.showUsageRights">
-                        <gr-icon>edit</gr-icon>
-                    </button>
-                </div>
-
-                <gr-usage-rights-editor
-                    ng:show="ctrl.showUsageRights"
-                    class="result-editor__usage-rights"
-                    gr:usage-rights="[ctrl.usageRights]"
-                    gr:on-save="ctrl.showUsageRights = false"
-                    gr:on-cancel="ctrl.showUsageRights = false">
-                </gr-usage-rights-editor>
+            <div class="result-editor__field-container__labels" ng:class="{'result-editor__field-container__labels--hidden' : ctrl.inputtingLabel}">
+                <gr-add-label images="[ctrl.image]" active="ctrl.inputtingLabel"></gr-add-label>
+                <ui-labeller
+                    image="ctrl.image"
+                    with-batch="ctrl.withBatch"
+                ></ui-labeller>
             </div>
+        </div>
+        <div class="result-editor__field-container" ng:if="ctrl.image.data.uploadInfo.filename">
+            <div class="result-editor__field-label">File name</div>
+            <div class="result-editor__field-value">{{ctrl.image.data.uploadInfo.filename}}</div>
         </div>
 
     </div>

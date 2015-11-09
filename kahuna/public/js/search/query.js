@@ -8,6 +8,7 @@ import moment from 'moment';
 import '../util/eq';
 import '../components/gu-date-range/gu-date-range';
 import template from './query.html!text';
+import './syntax/syntax';
 
 import '../analytics/track';
 
@@ -16,6 +17,7 @@ export var query = angular.module('kahuna.search.query', [
     // 'ngAnimate',
     'util.eq',
     'gu-dateRange',
+    'grSyntax',
     'analytics.track'
 ]);
 
@@ -23,7 +25,7 @@ query.controller('SearchQueryCtrl',
                  ['$scope', '$state', '$stateParams', 'onValChange', 'mediaApi', 'track',
                  function($scope, $state, $stateParams, onValChange , mediaApi, track) {
 
-    var ctrl = this;
+    const ctrl = this;
 
     ctrl.ordering = {
         orderBy: $stateParams.orderBy
@@ -56,11 +58,13 @@ query.controller('SearchQueryCtrl',
     Object.keys($stateParams)
           .forEach(setAndWatchParam);
 
-    // pass undefined to the state on empty to remove the QueryString
-    function valOrUndefined(str) { return str || undefined; }
+    // URL parameters are not decoded when taken out of the params.
+    // Might be fixed with: https://github.com/angular-ui/ui-router/issues/1759
+    // Pass undefined to the state on empty to remove the QueryString
+    function valOrUndefined(str) { return str ? str : undefined; }
 
     function setAndWatchParam(key) {
-        ctrl.filter[key] = $stateParams[key];
+        ctrl.filter[key] = valOrUndefined($stateParams[key]);
 
         $scope.$watch(() => $stateParams[key], onValChange(newVal => {
             // FIXME: broken for 'your uploads'

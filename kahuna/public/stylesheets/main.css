@@ -1,3 +1,4 @@
+
 /* ==========================================================================
    Common
    ========================================================================== */
@@ -86,6 +87,9 @@ button {
     font-size: 1.4rem;
 }
 
+/* TODO: Remove generic styling, this should be a class,
+         as we need to override it to use text elements
+         anywhere else */
 input[type="text"],
 textarea {
     background-color: #444;
@@ -300,6 +304,10 @@ a:focus {
     flex-shrink: 0;
 }
 
+.inline-block {
+    display: inline-block;
+}
+
 /* ==========================================================================
    Generics
    ========================================================================== */
@@ -312,6 +320,10 @@ a:focus {
     font-size: 1.8rem;
     margin: 10px 0;
     border-bottom: 1px solid #999;
+}
+
+.text-small {
+    font-size: 13px;
 }
 
 
@@ -352,7 +364,7 @@ textarea.ng-invalid {
 }
 
 .top-bar-item:hover {
-	background-color: #666666;
+    background-color: #666666;
 }
 
 .top-bar-item--filled {
@@ -367,6 +379,10 @@ textarea.ng-invalid {
 .top-bar-item .gr-confirm-delete {
     border: none;
     padding: 0 10px;
+}
+
+.top-bar-item ui-archiver .archiver {
+    color: #ccc;
 }
 
 .user-actions {
@@ -438,6 +454,15 @@ textarea.ng-invalid {
     border-radius: 5px;
 }
 
+.global-error__close {
+    padding-left: 10px;
+    cursor: pointer;
+}
+
+.global-error__close:hover {
+    color: white;
+}
+
 .error {
     background: darkred;
     color: white;
@@ -449,6 +474,9 @@ textarea.ng-invalid {
     color: black;
     padding: 20px 40px;
     text-align: center;
+}
+.warning--small {
+    padding: 5px 10px;
 }
 
 .full-error {
@@ -607,6 +635,10 @@ input.search-query__input {
     font-weight: bold;
 }
 
+.clear-button:hover {
+    color: white;
+}
+
 .advanced-search-help {
     top: 49px;
     padding-right: 50px;
@@ -665,6 +697,19 @@ input.search-query__input {
     margin-top: 12px;
 }
 
+.crop-item {
+    display: inline-block;
+    width: 100%;
+    padding: 0 10px;
+    line-height: 45px;
+    box-sizing: border-box;
+    font-size: 1.4rem;
+}
+
+.crop-item:hover {
+    background-color: #666666;
+}
+
 /* ==========================================================================
    File uploader
    ========================================================================== */
@@ -714,7 +759,7 @@ input.search-query__input {
     border: 5px solid transparent;
     box-sizing: border-box;
     margin: 5px;
-    background-color: #39393;
+    background-color: #393939;
 }
 .result--seen {
     opacity: .5;
@@ -739,6 +784,10 @@ input.search-query__input {
     z-index: 1;
 }
 
+.result__select--no-pointer-events {
+    pointer-events: none;
+}
+
 .result__select__checkbox__label {
     position: absolute;
     top: 0;
@@ -755,6 +804,10 @@ input.search-query__input {
     color: #00adee;
 }
 
+.result ui-archiver .archiver--unarchived {
+    display: none;
+}
+
 .result:hover .result__select,
 .result:hover .preview__fade,
 .result:hover .image-actions,
@@ -762,7 +815,7 @@ input.search-query__input {
     display: block;
 }
 
-.result:hover gr-add-label {
+.result:hover .gr-add-label--inactive {
     display: inline-block;
 }
 
@@ -846,38 +899,33 @@ input.search-query__input {
     position: fixed;
     z-index: 2;
 }
+
+.results-toolbar__right {
+    margin-left: auto;
+    line-height: 35px;
+}
+
 .results-toolbar-item {
     vertical-align: middle;
-    border: 1px solid #565656;
-    border-width: 0px 1px;
+    border-width: 0 1px;
+    border-color: #565656;
+    border-style: solid;
     position: relative;
-    padding: 0 10px;
     height: 35px;
-}
-
-.results-toolbar-item--text {
-    position: absolute;
-    left: 0px;
-    padding-left: 30px;
-}
-
-.results-toolbar-item--icon {
-    position: absolute;
-    left: 0px;
-    padding-left: 10px;
+    white-space: nowrap;
 }
 
 .results-toolbar-item:hover {
-	background-color: #666666;
+    background-color: #666666;
 }
 
-.results-toolbar-item--split {
-    margin-right: auto;
+.results-toolbar-item--static,
+.results-toolbar-item gr-icon-label {
+    padding: 0 10px;
 }
 
 .results-toolbar-item--left {
     border-left: 0;
-    padding-left: 0;
 }
 
 .results-toolbar-item--right {
@@ -913,25 +961,66 @@ input.search-query__input {
 
 .results-toolbar-item__metadata-panel-controls {
     line-height: 35px;
-    width: 130px;
     height: 36px;
 }
 
-/* TODO: remove this once eveything is in the action-bar */
-.results-count {
-    float: left;
-    padding: 0 10px;
+.related-labels {
+    line-height: 35px;
+}
+.related-labels--with-labels {
+    /* This is to allow scrolling of labels, but show the
+    autocomplete dropdown */
+    overflow-x: auto;
 }
 
-@media screen and (max-width: 800px) {
-    .results-toolbar-item--text {
-        display: none;
-    }
-    .results-toolbar-item__metadata-panel-controls,
-    .results-toolbar-item__clear-selection
-     {
-        width: 18px
-    }
+.related-labels__datalist {
+    line-height: 1;
+}
+
+input.related-labels__parent {
+    border: 0;
+    background: transparent;
+    border-bottom: 1px solid #999;
+    box-sizing: border-box;
+    padding: 2px 5px;
+    width: 150px;
+}
+
+.related-labels__labels {
+    overflow-x: auto;
+    overflow-y: hidden;
+    /* space below scrollbar */
+    margin-bottom: 3px;
+}
+
+/* style scrollbar to take less space */
+.related-labels__labels::-webkit-scrollbar-track {
+	border-radius: 10px;
+	background-color: #555;
+}
+
+.related-labels__labels::-webkit-scrollbar {
+    height: 5px;
+	background-color: #555;
+}
+
+.related-labels__labels::-webkit-scrollbar-thumb {
+	border-radius: 10px;
+	background-color: #888;
+}
+
+
+.related-labels__label {
+    margin-left: 2px;
+}
+
+.related-labels__label-text {
+    padding: 2px 5px 4px;
+    box-sizing: border-box;
+}
+.related-labels__label-text--selected {
+    border-top: 2px solid #00adee;
+    background-color: #444;
 }
 
 .image-results-count__new {
@@ -945,7 +1034,7 @@ input.search-query__input {
 }
 
 .image-results-count {
-    border: 0;
+    border-left: 0;
     line-height: 35px;
 }
 
@@ -1016,11 +1105,13 @@ FIXME: what to do with touch devices
 */
 
 .preview__labeller {
-    width: calc(100% - 20px);
-    display: inline-block;
+    /*25px - auto height of div on hover, stops shifting when off hover */
+    height: 25px;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
-.preview gr-add-label {
+.preview .gr-add-label--inactive {
     display: none;
 }
 
@@ -1074,7 +1165,7 @@ FIXME: what to do with touch devices
     display: block;
 }
 
-.bottom-bar__actions ui-archiver {
+.bottom-bar__actions gr-image-persist-status {
     float: left;
 }
 
@@ -1160,7 +1251,6 @@ FIXME: what to do with touch devices
 .result-editor__editor {
     flex-grow: 1;
     margin-left: 10px;
-    margin-bottom: 10px;
 }
 
 .result-editor__info {
@@ -1172,6 +1262,7 @@ FIXME: what to do with touch devices
     margin-left: 1px;
     font-size: 1.4rem;
 }
+
 .result-editor__info-item--first {
     margin-left: 0;
 }
@@ -1184,23 +1275,37 @@ FIXME: what to do with touch devices
 }
 
 .result-editor__archiver {
-    background: black;
+    background: #393939;
     padding: 0 5px;
 }
 
 .result-editor__field-container {
     display: flex;
     width: 100%;
-    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.result-editor__field-container__labels {
+    display: flex;
+}
+
+.result-editor__field-container__labels--hidden {
+    display: inline;
 }
 
 .result-editor__field-container gr-add-label {
     font-size: 1.3rem;
     padding-right: 10px;
+    padding-bottom: 5px;
 }
 
 .result-editor__field-label {
     width: 100px;
+}
+
+.result-editor__field-value {
+    font-size: 1.4rem;
+    line-height: 24px;
 }
 
 .result-editor__usage-rights-container {
@@ -1261,14 +1366,30 @@ FIXME: what to do with touch devices
     border-left: 1px solid #565656;
     background-color: #444;
 }
+
+.image-details--crop {
+    float: left;
+    width: 130px;
+    border-right: 1px solid #565656;
+    position: relative;
+}
+
+.image-details__delete-crops {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
 .image-details:after {
     clear: both;
     content:  " ";
     display:  table;
 }
 
+/*to clear the set widths of the side panels */
 .image-holder {
     margin-right: 300px;
+    margin-left: 130px;
 }
 
 .image-info__group {
@@ -1279,6 +1400,14 @@ FIXME: what to do with touch devices
 .image-info__group--last {
     border-bottom: 0;
     clear: both;
+}
+
+.image-info__group--crops {
+    padding: 10px;
+}
+
+.image-info__group--original {
+    border-top: 1px solid #565656;
 }
 
 .image-info__group table {
@@ -1334,11 +1463,25 @@ FIXME: what to do with touch devices
     color: #ccc;
 }
 
+.image-info__file-size {
+    color: #ccc;
+    font-size: 1.2rem;
+    font-weight: normal;
+}
+
 .image-info__heading {
     color: #999;
     font-weight: bold;
     padding-bottom: 3px;
+    display: flex;
+    justify-content: space-between;
 }
+
+.image-info__heading--crops {
+    flex-basis: 100%;
+    max-width: 100%;
+}
+
 .image-info__heading--first {
     margin-top: 0;
 }
@@ -1390,6 +1533,8 @@ FIXME: what to do with touch devices
     color: white;
     background-color: #222;
     border: 1px solid white;
+    margin-top: -1px;
+    margin-bottom: -1px;
 }
 
 .image-info__wrap .editable-wrap,
@@ -1431,11 +1576,9 @@ FIXME: what to do with touch devices
     padding-top: 2px;
 }
 
-.image-info__usage-rights {
-    width: 100%;
-    box-sizing: border-box;
-    font-weight: bold;
-    color: #999;
+.image-info__usage-rights .ure {
+    background: #333;
+    padding: 10px;
 }
 
 .image-info--multiple {
@@ -1453,6 +1596,10 @@ FIXME: what to do with touch devices
 .metadata-line__info {
     color: #ccc;
     padding-bottom: 10px;
+}
+
+.metadata-line__info--crop {
+    padding-bottom: 0;
 }
 
 .metadata-line__info a {
@@ -1494,24 +1641,52 @@ FIXME: what to do with touch devices
 }
 
 .image-crop {
-    border: solid 5px transparent;
-    max-width: 140px;
-    margin-right: 5px;
+    margin-bottom: 10px;
+    min-width: 100%;
     box-sizing: border-box;
+    background-color: #333;
 }
-.image-crop--selected,
+
+.image-crop:hover .image-crop__creator{
+    display: inline;
+}
+
 .result--selected,
 .result--selected:hover {
     border-color: #00adee;
+}
+
+.image-crop--selected {
+    border: solid 2px #00adee;
 }
 
 .result--selected .preview {
     background-color: #4c4c4c;
 }
 
+.image-crop__creator {
+    position: absolute;
+    display: none;
+    margin: 1px;
+    padding: 2px;
+    border-radius: 50%;
+    background-color: #6E6E6E;
+    opacity: 0.5;
+    width: 22px;
+    height: 22px;
+    line-height: 22px;
+    text-align: center;
+}
+
+.image-crop__creator:hover {
+    opacity: 1;
+}
+
 .image-crop__image {
     display: block;
-    width: 100%;
+    max-width: 100%;
+    max-height: 64px;
+    margin: 0 auto;
 }
 
 .image-crop__aspect-ratio {
@@ -1520,77 +1695,9 @@ FIXME: what to do with touch devices
     font-size: 1.2rem;
 }
 
-
-/* ==========================================================================
-   Labeller
-   ========================================================================== */
-.labeller {
-    height: 25px;
-    font-size: 1.3rem;
-    display: flex;
-    overflow: hidden;
+.image-crop__aspect-ratio--selected {
+    color: #FFFFFF;
 }
-
-.image-info__group--fixed-panel .labeller{
-    height: auto;
-}
-
-.labels {
-    overflow-x: auto;
-    white-space: nowrap;
-}
-
-.image-info__group--fixed-panel .labels{
-    white-space: normal;
-}
-
-.preview__info .labels{
-    overflow-y: hidden;
-    margin-bottom: -15px;
-}
-
-.label {
-    background-color: #00adee;
-    color: white;
-    display: inline-block;
-    padding: 0 5px;
-    border-radius: 2px;
-    margin: 0 5px 5px 0;
-}
-.label--removing {
-    background-color: #99ddff;
-}
-
-.label--partial,
-.label--partial gr-icon {
-    background-color: white;
-    color: #00adee;
-}
-
-.label__link,
-.label__remove {
-    color: white;
-}
-
-.label button:hover gr-icon {
-    color: #333;
-}
-
-.label button:active gr-icon {
-    background-color: #008fc5;
-    color: #333;
-}
-
-.label--partial button:active gr-icon {
-    background-color: #CFCFCF;
-    color: #333;
-}
-
-.labeller__apply-all {
-    margin-left: 10px;
-    line-height: 20px;
-}
-
 
 /* ==========================================================================
    Uploads
@@ -1707,7 +1814,6 @@ FIXME: what to do with touch devices
 }
 
 .job-uploading {
-    width: 200px;
     margin-bottom: 20px;
 }
 
@@ -1718,8 +1824,12 @@ FIXME: what to do with touch devices
     top: 1px;
     z-index: 1;
     padding: 0 5px;
-    background: #444;
 }
+
+.job-editor__apply-to-all:hover {
+    color: #FFF;
+}
+
 
 .metadata-applicator {
     font-size: 1.4rem;
@@ -1735,10 +1845,10 @@ FIXME: what to do with touch devices
     text-decoration: underline;
 }
 
-.upload-result {
-    margin-bottom: 10px;
-    padding-bottom: 20px;
-    border-bottom: 1px dashed #999;
+.upload-result + .upload-result {
+    margin-top: 10px;
+    padding-top: 20px;
+    border-top: 1px dashed #999;
 }
 
 .upload-result .gr-confirm-delete {
@@ -1818,32 +1928,6 @@ FIXME: what to do with touch devices
     90% { border-width: 10px; }
     100% { border-width: 0; }
 }
-
-
-/* ==========================================================================
-   Archviver
-   ========================================================================== */
-.top-bar-item .archiver {
-    padding: 0 10px;
-    height: 100%;
-}
-
-.preview .archiver {
-    display: none;
-}
-
-.preview .archiver--archived {
-    display: block;
-}
-
-ui-archiver {
-    color: #ccc;
-}
-
-ui-archiver .archiver:hover {
-    color: white;
-}
-
 
 /* ==========================================================================
    Drop menu e.g top level navigation
@@ -1952,25 +2036,6 @@ ui-archiver .archiver:hover {
 }
 
 
-/* ==========================================================================
-   Forms
-   ========================================================================== */
-.action-bar {
-    line-height: 35px;
-    display: flex;
-}
-
-.action-bar__item {
-    line-height: inherit;
-    padding: 0 10px;
-    display: block;
-    border-left: 1px solid #565656;
-}
-
-.action-bar__item--last {
-    border-right: 1px solid #565656;
-}
-
 
 /* ==========================================================================
    Forms
@@ -2051,3 +2116,90 @@ ui-archiver .archiver:hover {
 .radio-list__label-value {
     padding: 5px 10px;
 }
+
+
+@media print {
+
+    /* ==========================================================================
+       Image page
+    ========================================================================== */
+
+    /*!important is used to overwrite the component stylesheet (labeller.css) loaded after*/
+    /*main.css*/
+
+    button,
+    gr-top-bar,
+    gr-add-label,
+    .image-details--crop,
+    .image-info__group--full-metadata,
+    .related-labels__title,
+    .radio-list {
+        display: none !important;
+    }
+
+    .image-details {
+        border: none;
+    }
+
+    .metadata-line__info,
+    .image-info__title,
+    .image-info__description,
+    .image-info__special-instructions,
+    .label__value,
+    .image-info__keyword {
+        color: black !important;
+    }
+
+    .easel__image {
+        float: left;
+        max-width: 100%;
+        max-height: 450px;
+        transform: none;
+        position: static;
+    }
+
+    .image-canvas, .image-details {
+        height: auto;
+        width: auto;
+    }
+
+    .image-info__description, .image-info__keyword {
+        max-height: 80px;
+        overflow: hidden;
+    }
+
+    .image-info__group, .metadata-line__info, .image-holder {
+        padding: 0;
+        margin: 0;
+    }
+
+    .image-info__group, .metadata-line__info a {
+        border: none;
+    }
+
+    .image-info__group--dl__key {
+        flex-basis: 20%;
+    }
+
+    .image-info__group--dl__value {
+        flex-basis: 80%;
+    }
+
+    /* ==========================================================================
+       Results page
+    ========================================================================== */
+
+    .results-toolbar {
+        display: none;
+    }
+
+    .result-placeholder {
+        border: none;
+    }
+
+    .preview__image {
+        max-height: 150px;
+    }
+
+}
+

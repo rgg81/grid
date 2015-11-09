@@ -12,5 +12,7 @@ mappings:
     port: 9007
   - prefix: media-imgops
     port: 9008
-  - prefix: media-auth
+  - prefix: media-usage
     port: 9009
+  - prefix: media-auth
+    port: 9010
