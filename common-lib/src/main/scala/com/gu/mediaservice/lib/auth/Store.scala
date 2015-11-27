@@ -1,22 +1,20 @@
 package com.gu.mediaservice.lib.auth
 
+import akka.actor.Scheduler
+import akka.agent.Agent
+import com.amazonaws.auth.AWSCredentials
+import com.amazonaws.services.s3.model.S3Object
 import com.gu.mediaservice.lib.auth.PermissionType.PermissionType
+import com.gu.mediaservice.lib.aws.S3
 import com.gu.mediaservice.lib.config.Properties
+import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
+import play.api.libs.concurrent.Execution.Implicits._
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
 import scala.concurrent.duration._
-
-import akka.actor.Scheduler
-import akka.agent.Agent
-
-import play.api.libs.concurrent.Execution.Implicits._
-
-import com.gu.mediaservice.lib.aws.S3
-import com.amazonaws.auth.AWSCredentials
-import org.apache.commons.io.IOUtils
-import com.amazonaws.AmazonServiceException
+import scala.util.{Success, Try}
 
 abstract class BaseStore[TStoreKey, TStoreVal](bucket: String, credentials: AWSCredentials) {
   val s3 = new S3(credentials)
@@ -26,18 +24,17 @@ abstract class BaseStore[TStoreKey, TStoreVal](bucket: String, credentials: AWSC
   protected val store: Agent[Map[TStoreKey, TStoreVal]] = Agent(Map.empty)
 
   protected def getS3Object(key: String): Option[String] = {
-    val content = s3.client.getObject(bucket, key)
-    val stream = content.getObjectContent
-    try
-      Some(IOUtils.toString(stream, "utf-8").trim)
-    catch {
-      case e: AmazonServiceException if e.getErrorCode == "NoSuchKey" => {
-        log.warn(s"Cannot find key: $key in bucket: $bucket")
-        None
-      }
+    log.info(s"key: $key in bucket: $bucket")
+    val content = Try[S3Object](s3.client.getObject(bucket, key))
+    content match {
+      case Success(cont) =>
+        val stream = cont.getObjectContent
+        val result = IOUtils.toString(stream, "utf-8").trim
+        stream.close()
+        Some(result)
+      case _ => None
     }
-    finally
-      stream.close()
+
   }
 
   def scheduleUpdates(scheduler: Scheduler) {

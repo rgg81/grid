@@ -1,0 +1,15 @@
+#!/bin/bash
+
+
+#screen -S elasticsearch -d -m ./elasticsearch/dev-start.sh
+sbt 'project media-api' 'clean' 'stage' 
+./media-api/target/universal/stage/bin/media-api -Dhttp.port=9001 > media-api.log &
+#sbt 'project thrall' 'clean' 'stage' && ./thrall/target/universal/stage/bin/thrall -Dhttp.port=9002 > thrall.log &
+#sbt 'project image-loader' 'clean' 'stage' && ./image-loader/target/universal/stage/bin/image-loader -Dhttp.port=9003 > loader.log &
+#sbt 'project ftp-watcher' 'clean' 'stage' && ./ftp-loader/target/universal/stage/bin/ftp-loader -Dhttp.port=9004 > ftp-watcher.log &
+#sbt 'project kahuna' 'clean' 'stage' && ./kahuna/target/universal/stage/bin/kahuna -Dhttp.port=9005 > kahuna.log &
+#sbt 'project cropper' 'clean' 'stage' && ./cropper/target/universal/stage/bin/cropper -Dhttp.port=9006 > cropper.log &
+#sbt 'project usage' 'clean' 'stage' && ./usage/target/universal/stage/bin/usage -Dhttp.port=9009 > usage.log &
+#sbt 'project metadata-editor' 'clean' 'stage' && ./metadata-editor/target/universal/stage/bin/metadata-editor -Dhttp.port=9007 > metadata-editor.log &
+
+
