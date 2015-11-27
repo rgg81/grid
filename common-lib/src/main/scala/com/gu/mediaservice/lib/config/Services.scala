@@ -8,12 +8,12 @@ class Services(domainRoot: String, ssl: Boolean) {
   }
 
   val kahunaHost: String   = domainRoot
-  val apiHost: String      = s"api.$domainRoot"
-  val loaderHost: String   = s"loader.$domainRoot"
-  val cropperHost: String  = s"cropper.$domainRoot"
-  val metadataHost: String = s"$appName-metadata.$parentDomain"
-  val imgopsHost: String = s"$appName-imgops.$parentDomain"
-  val usageHost: String = s"$appName-usage.$parentDomain"
+  val apiHost: String      = s"api-$domainRoot"
+  val loaderHost: String   = s"loader-$domainRoot"
+  val cropperHost: String  = s"cropper-$domainRoot"
+  val metadataHost: String = s"metadata-$domainRoot"
+  val imgopsHost: String = s"imgops-$domainRoot"
+  val usageHost: String = s"usage-$domainRoot"
 
 
   val kahunaBaseUri   = baseUri(kahunaHost)
