@@ -9,5 +9,7 @@ if [ -z "$USAGE_LAMBDA" ];
 then
     echo '**** FAILED ****'
     echo 'Upload usage lambda first!'
+    echo $BUCKET
+    echo $STACK_NAME
     exit 1
 fi
